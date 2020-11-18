@@ -188,17 +188,53 @@ public class BGAQRCodeUtil {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(picturePath, options);
-            int sampleSize = options.outHeight / 400;
+            int sampleSize = calculateInSampleSize(options, 800, 800);
             if (sampleSize <= 0) {
                 sampleSize = 1;
             }
             options.inSampleSize = sampleSize;
             options.inJustDecodeBounds = false;
-
-            return BitmapFactory.decodeFile(picturePath, options);
+            return zoomImg(BitmapFactory.decodeFile(picturePath, options), 800);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
+
+    private static Bitmap zoomImg(Bitmap bm, int newWidth){
+        // 获得图片的宽高
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int newHeight = height * newWidth / width;
+        // 计算缩放比例
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        // 取得想要缩放的matrix参数
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+        // 得到新的图片
+        return Bitmap.createBitmap(bm, 0, 0, width, height, matrix, true);
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+        return inSampleSize;
+    }
+
 }

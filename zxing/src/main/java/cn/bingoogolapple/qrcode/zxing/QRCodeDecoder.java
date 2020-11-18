@@ -1,21 +1,30 @@
 package cn.bingoogolapple.qrcode.zxing;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.util.Log;
 
+import com.cv4j.core.datamodel.CV4JImage;
+import com.cv4j.core.datamodel.Rect;
+import com.cv4j.image.util.QRCodeScanner;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
-import com.google.zxing.RGBLuminanceSource;
+import com.google.zxing.NotFoundException;
 import com.google.zxing.Result;
-import com.google.zxing.common.GlobalHistogramBinarizer;
 import com.google.zxing.common.HybridBinarizer;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import cn.bingoogolapple.qrcode.core.BGAQRCodeUtil;
 
@@ -52,7 +61,7 @@ public class QRCodeDecoder {
         // 花更多的时间用于寻找图上的编码，优化准确性，但不优化速度
         ALL_HINT_MAP.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
         // 复杂模式，开启 PURE_BARCODE 模式（带图片 LOGO 的解码方案）
-//        ALL_HINT_MAP.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
+        ALL_HINT_MAP.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
         // 编码字符集
         ALL_HINT_MAP.put(DecodeHintType.CHARACTER_SET, "utf-8");
     }
@@ -153,26 +162,62 @@ public class QRCodeDecoder {
      */
     public static String syncDecodeQRCode(Bitmap bitmap) {
         Result result;
-        RGBLuminanceSource source = null;
+        Bitmap copy = null;
         try {
-            int width = bitmap.getWidth();
-            int height = bitmap.getHeight();
-            int[] pixels = new int[width * height];
-            bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-            source = new RGBLuminanceSource(width, height, pixels);
-            result = new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(source)), ALL_HINT_MAP);
+            copy = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+            MultiFormatReader multiFormatReader = create();
+            result = multiFormatReader.decodeWithState(new BinaryBitmap(new HybridBinarizer(new BitmapLuminanceSource(bitmap))));
             return result.getText();
         } catch (Exception e) {
-            e.printStackTrace();
-            if (source != null) {
-                try {
-                    result = new MultiFormatReader().decode(new BinaryBitmap(new GlobalHistogramBinarizer(source)), ALL_HINT_MAP);
+            try {
+                if(copy != null){
+                    CV4JImage cv4JImage = new CV4JImage(copy);
+                    QRCodeScanner qrCodeScanner = new QRCodeScanner();
+                    Rect rect = qrCodeScanner.findQRCodeBounding(cv4JImage.getProcessor(),1,6);
+                    Bitmap bitmap2 = Bitmap.createBitmap(bitmap, 0, rect.y - 20, copy.getWidth(), copy.getHeight()- rect.y  +  20);
+                    MultiFormatReader multiFormatReader = create();
+                    result = multiFormatReader.decodeWithState(new BinaryBitmap(new HybridBinarizer(new BitmapLuminanceSource(bitmap2))));
                     return result.getText();
-                } catch (Throwable e2) {
-                    e2.printStackTrace();
                 }
+                return null;
+            } catch (Exception ex) {
+                Log.w("syncDecodeQRCode", ex);
+                ex.printStackTrace();
+                return null;
             }
-            return null;
         }
+    }
+
+    private static Bitmap zoomImg(Bitmap bm, int newWidth){
+        // 获得图片的宽高
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int newHeight = height * newWidth / width;
+        // 计算缩放比例
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        // 取得想要缩放的matrix参数
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+        // 得到新的图片
+        return Bitmap.createBitmap(bm, 0, 0, width, height, matrix, true);
+    }
+
+    private static MultiFormatReader create() {
+        MultiFormatReader multiFormatReader = new MultiFormatReader();
+        // 解码的参数
+        Hashtable<DecodeHintType, Object> hints = new Hashtable<>(2);
+        // 可以解析的编码类型
+        Vector<BarcodeFormat> decodeFormats = new Vector<>();
+        decodeFormats.addAll(DecodeFormatManager.ONE_D_FORMATS);
+        decodeFormats.addAll(DecodeFormatManager.QR_CODE_FORMATS);
+        decodeFormats.addAll(DecodeFormatManager.DATA_MATRIX_FORMATS);
+        hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
+//        hints.put(DecodeHintType.PURE_BARCODE, true);
+        // 设置继续的字符编码格式为UTF8
+        // hints.put(DecodeHintType.CHARACTER_SET, "UTF8");
+        // 设置解析配置参数
+        multiFormatReader.setHints(hints);
+        return multiFormatReader;
     }
 }

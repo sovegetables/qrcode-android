@@ -13,6 +13,7 @@ import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 
@@ -297,8 +298,11 @@ public abstract class QRCodeView extends RelativeLayout implements Camera.Previe
 
     @Override
     public void onPreviewFrame(final byte[] data, final Camera camera) {
+        Log.d("QRCodeView", "onPreviewFrame: ");
         if (BGAQRCodeUtil.isDebug()) {
-            BGAQRCodeUtil.d("两次 onPreviewFrame 时间间隔：" + (System.currentTimeMillis() - mLastPreviewFrameTime));
+            if(mLastPreviewFrameTime != 0){
+                BGAQRCodeUtil.d("两次 onPreviewFrame 时间间隔：" + (System.currentTimeMillis() - mLastPreviewFrameTime));
+            }
             mLastPreviewFrameTime = System.currentTimeMillis();
         }
 
@@ -315,7 +319,8 @@ public abstract class QRCodeView extends RelativeLayout implements Camera.Previe
             return;
         }
 
-        mProcessDataTask = new ProcessDataTask(camera, data, this, BGAQRCodeUtil.isPortrait(getContext())).perform();
+        mProcessDataTask = new ProcessDataTask(camera, data, this, BGAQRCodeUtil.isPortrait(getContext()));
+        mProcessDataTask.perform();
     }
 
     private void handleAmbientBrightness(byte[] data, Camera camera) {

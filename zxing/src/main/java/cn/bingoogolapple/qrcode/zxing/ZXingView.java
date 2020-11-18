@@ -17,7 +17,9 @@ import com.google.zxing.ResultPoint;
 import com.google.zxing.common.GlobalHistogramBinarizer;
 import com.google.zxing.common.HybridBinarizer;
 
+import java.util.Hashtable;
 import java.util.Map;
+import java.util.Vector;
 
 import cn.bingoogolapple.qrcode.core.BGAQRCodeUtil;
 import cn.bingoogolapple.qrcode.core.BarcodeType;
@@ -27,6 +29,10 @@ import cn.bingoogolapple.qrcode.core.ScanResult;
 public class ZXingView extends QRCodeView {
     private MultiFormatReader mMultiFormatReader;
     private Map<DecodeHintType, Object> mHintMap;
+
+    public ZXingView(Context context) {
+        this(context, null, 0);
+    }
 
     public ZXingView(Context context, AttributeSet attributeSet) {
         this(context, attributeSet, 0);
@@ -85,7 +91,31 @@ public class ZXingView extends QRCodeView {
         Result rawResult = null;
         Rect scanBoxAreaRect = null;
 
+
+        MultiFormatReader multiFormatReader = new MultiFormatReader();
+
+        // 解码的参数
+        Hashtable<DecodeHintType, Object> hints = new Hashtable<DecodeHintType, Object>(2);
+        // 可以解析的编码类型
+        Vector<BarcodeFormat> decodeFormats = new Vector<BarcodeFormat>();
+        decodeFormats.addAll(DecodeFormatManager.ONE_D_FORMATS);
+        decodeFormats.addAll(DecodeFormatManager.QR_CODE_FORMATS);
+        decodeFormats.addAll(DecodeFormatManager.DATA_MATRIX_FORMATS);
+        hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
+        // hints.put(DecodeHintType.PURE_BARCODE, true);
+        // 设置继续的字符编码格式为UTF8
+        // hints.put(DecodeHintType.CHARACTER_SET, "UTF8");
+        // 设置解析配置参数
+        multiFormatReader.setHints(hints);
+
+        // 开始对图像资源解码
         try {
+            rawResult = multiFormatReader.decodeWithState(new BinaryBitmap(new HybridBinarizer(new BitmapLuminanceSource(data,width, height))));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+       /* try {
             PlanarYUVLuminanceSource source;
             scanBoxAreaRect = mScanBoxView.getScanBoxAreaRect(height);
             if (scanBoxAreaRect != null) {
@@ -103,14 +133,14 @@ public class ZXingView extends QRCodeView {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            BGAQRCodeUtil.e("没识别到" +e.getMessage());
         } finally {
             mMultiFormatReader.reset();
         }
 
         if (rawResult == null) {
             return null;
-        }
+        }*/
 
         String result = rawResult.getText();
         if (TextUtils.isEmpty(result)) {

@@ -33,11 +33,11 @@ android {
 }
 
 dependencies {
-    if (hasProperty("publishAar")) {
-        compile "cn.bingoogolapple:bga-qrcode-core:${VERSION_NAME}"
-    } else {
+//    if (hasProperty("publishAar")) {
+//        compile "cn.bingoogolapple:bga-qrcode-core:${VERSION_NAME}"
+//    } else {
         api project(':qrcodecore')
-    }
+//    }
 }
 
 // ./gradlew :zbar:clean :zbar:build :zbar:bintrayUpload -PpublishAar

@@ -32,7 +32,6 @@ public class TestScanActivity extends AppCompatActivity implements QRCodeView.De
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_scan);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-
         mZXingView = findViewById(R.id.zxingview);
         mZXingView.setDelegate(this);
     }
@@ -40,10 +39,8 @@ public class TestScanActivity extends AppCompatActivity implements QRCodeView.De
     @Override
     protected void onStart() {
         super.onStart();
-
         mZXingView.startCamera(); // 打开后置摄像头开始预览，但是并未开始识别
 //        mZXingView.startCamera(Camera.CameraInfo.CAMERA_FACING_FRONT); // 打开前置摄像头开始预览，但是并未开始识别
-
         mZXingView.startSpotAndShowRect(); // 显示扫描框，并开始识别
     }
 

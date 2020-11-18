@@ -15,4 +15,14 @@
         style="@style/MatchWrapTv"
         android:text="测试生成和识别图片二维码"/>
 
+    <TextView
+        android:id="@+id/test_qrcode"
+        style="@style/MatchWrapTv"
+        android:text="测试"/>
+
+    <TextView
+        android:id="@+id/test_qrcode_r"
+        style="@style/MatchWrapTv"
+        android:text="测试识别速度"/>
+
 </LinearLayout>

@@ -33,6 +33,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             case R.id.test_generate_qrcode:
                 startActivity(new Intent(this, TestGeneratectivity.class));
                 break;
+            case R.id.test_qrcode:
+                startActivity(new Intent(this, TestActivity.class));
+                break;
+            case R.id.test_qrcode_r:
+                startActivity(new Intent(this, TestSpeedActivity.class));
+                break;
         }
     }
 
