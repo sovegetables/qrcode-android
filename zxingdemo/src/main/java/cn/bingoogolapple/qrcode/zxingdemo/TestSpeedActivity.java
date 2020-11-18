@@ -12,7 +12,7 @@ public class TestSpeedActivity extends AppCompatActivity {
 
     private ZXingView mZXingView;
 
-    private long time;
+    private static long time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +20,11 @@ public class TestSpeedActivity extends AppCompatActivity {
         setContentView(R.layout.activity_test_speed);
         mZXingView = findViewById(R.id.zxingview);
         mZXingView.setDelegate(new QRCodeView.Delegate() {
+            @Override
+            public void onPreviewCallback() {
+                time = System.currentTimeMillis();
+            }
+
             @Override
             public void onScanQRCodeSuccess(String result) {
                 Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
@@ -58,8 +63,6 @@ public class TestSpeedActivity extends AppCompatActivity {
         super.onStart();
         mZXingView.startCamera(); // 打开后置摄像头开始预览，但是并未开始识别
         mZXingView.startSpotAndShowRect(); // 显示扫描框，并开始识别
-
-        time = System.currentTimeMillis();
     }
 
     @Override

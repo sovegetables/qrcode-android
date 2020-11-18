@@ -62,6 +62,11 @@ public class TestScanActivity extends AppCompatActivity implements QRCodeView.De
     }
 
     @Override
+    public void onPreviewCallback() {
+
+    }
+
+    @Override
     public void onScanQRCodeSuccess(String result) {
         Log.i(TAG, "result:" + result);
         setTitle("扫描结果为：" + result);

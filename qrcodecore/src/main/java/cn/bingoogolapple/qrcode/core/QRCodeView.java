@@ -59,7 +59,7 @@ public abstract class QRCodeView extends RelativeLayout implements Camera.Previe
         mCameraPreview.setDelegate(new CameraPreview.Delegate() {
             @Override
             public void onStartPreview() {
-                setOneShotPreviewCallback();
+                setPreviewCallback();
             }
         });
 
@@ -77,10 +77,10 @@ public abstract class QRCodeView extends RelativeLayout implements Camera.Previe
         mPaint.setStyle(Paint.Style.FILL);
     }
 
-    private void setOneShotPreviewCallback() {
+    private void setPreviewCallback() {
         if (mSpotAble && mCameraPreview.isPreviewing()) {
             try {
-                mCamera.setOneShotPreviewCallback(this);
+                mCamera.setPreviewCallback(this);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -205,7 +205,7 @@ public abstract class QRCodeView extends RelativeLayout implements Camera.Previe
     public void startSpot() {
         mSpotAble = true;
         startCamera();
-        setOneShotPreviewCallback();
+        setPreviewCallback();
     }
 
     /**
@@ -213,7 +213,7 @@ public abstract class QRCodeView extends RelativeLayout implements Camera.Previe
      */
     public void stopSpot() {
         mSpotAble = false;
-
+        QRCodeParsingTask.getInstance().cancel();
         if (mProcessDataTask != null) {
             mProcessDataTask.cancelTask();
             mProcessDataTask = null;
@@ -221,7 +221,7 @@ public abstract class QRCodeView extends RelativeLayout implements Camera.Previe
 
         if (mCamera != null) {
             try {
-                mCamera.setOneShotPreviewCallback(null);
+                mCamera.setPreviewCallback(null);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -298,7 +298,10 @@ public abstract class QRCodeView extends RelativeLayout implements Camera.Previe
 
     @Override
     public void onPreviewFrame(final byte[] data, final Camera camera) {
-        Log.d("QRCodeView", "onPreviewFrame: ");
+        if(mDelegate != null){
+            mDelegate.onPreviewCallback();
+        }
+        Log.d("QRCodeView", "onPreviewFrame: " + Thread.currentThread().getName());
         if (BGAQRCodeUtil.isDebug()) {
             if(mLastPreviewFrameTime != 0){
                 BGAQRCodeUtil.d("两次 onPreviewFrame 时间间隔：" + (System.currentTimeMillis() - mLastPreviewFrameTime));
@@ -314,13 +317,15 @@ public abstract class QRCodeView extends RelativeLayout implements Camera.Previe
             }
         }
 
-        if (!mSpotAble || (mProcessDataTask != null && (mProcessDataTask.getStatus() == AsyncTask.Status.PENDING
-                || mProcessDataTask.getStatus() == AsyncTask.Status.RUNNING))) {
+        QRCodeParsingTask.getInstance().pendTask(camera, data, this, BGAQRCodeUtil.isPortrait(getContext()));
+
+        /*if (!mSpotAble || (mProcessDataTask != null && (mProcessDataTask.getStatus() == AsyncTask.Status.PENDING
+                || mProcessDataTask.getStatus() == AsyncTask.Status.RUNNING)) ) {
             return;
         }
 
         mProcessDataTask = new ProcessDataTask(camera, data, this, BGAQRCodeUtil.isPortrait(getContext()));
-        mProcessDataTask.perform();
+        mProcessDataTask.perform();*/
     }
 
     private void handleAmbientBrightness(byte[] data, Camera camera) {
@@ -603,6 +608,12 @@ public abstract class QRCodeView extends RelativeLayout implements Camera.Previe
     }
 
     public interface Delegate {
+
+        /**
+         * 接收到摄像头的数据
+         */
+        void onPreviewCallback();
+
         /**
          * 处理扫描结果
          *
