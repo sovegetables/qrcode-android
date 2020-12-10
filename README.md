@@ -5,7 +5,7 @@
     maven { url 'https://jitpack.io' }
 
     dependencies {
-	        implementation 'com.github.sovegetables:qrcode-android:0.1'
+	        implementation 'com.github.sovegetables:qrcode-android:0.2.0'
 	}
 ```
 ## 优化
