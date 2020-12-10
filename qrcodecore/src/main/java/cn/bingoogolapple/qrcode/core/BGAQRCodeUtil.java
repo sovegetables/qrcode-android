@@ -188,13 +188,13 @@ public class BGAQRCodeUtil {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(picturePath, options);
-            int sampleSize = calculateInSampleSize(options, 800, 800);
+            int sampleSize = calculateInSampleSize(options, 600, 600);
             if (sampleSize <= 0) {
                 sampleSize = 1;
             }
             options.inSampleSize = sampleSize;
             options.inJustDecodeBounds = false;
-            return zoomImg(BitmapFactory.decodeFile(picturePath, options), 800);
+            return zoomImg(BitmapFactory.decodeFile(picturePath, options), 600);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

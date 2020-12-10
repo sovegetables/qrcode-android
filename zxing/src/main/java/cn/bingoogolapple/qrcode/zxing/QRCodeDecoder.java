@@ -161,31 +161,56 @@ public class QRCodeDecoder {
      * @return 返回二维码图片里的内容 或 null
      */
     public static String syncDecodeQRCode(Bitmap bitmap) {
-        Result result;
-        Bitmap copy = null;
+        String textResult = null;
         try {
-            copy = bitmap.copy(Bitmap.Config.ARGB_8888, true);
             MultiFormatReader multiFormatReader = create();
-            result = multiFormatReader.decodeWithState(new BinaryBitmap(new HybridBinarizer(new BitmapLuminanceSource(bitmap))));
-            return result.getText();
+            Result result = multiFormatReader.decodeWithState(new BinaryBitmap(new HybridBinarizer(new BitmapLuminanceSource(bitmap))));
+            textResult = result.getText();
         } catch (Exception e) {
-            try {
-                if(copy != null){
-                    CV4JImage cv4JImage = new CV4JImage(copy);
-                    QRCodeScanner qrCodeScanner = new QRCodeScanner();
-                    Rect rect = qrCodeScanner.findQRCodeBounding(cv4JImage.getProcessor(),1,6);
-                    Bitmap bitmap2 = Bitmap.createBitmap(bitmap, 0, rect.y - 20, copy.getWidth(), copy.getHeight()- rect.y  +  20);
+            Log.w("syncDecodeQRCode1", e);
+            if(bitmap != null){
+                try {
                     MultiFormatReader multiFormatReader = create();
-                    result = multiFormatReader.decodeWithState(new BinaryBitmap(new HybridBinarizer(new BitmapLuminanceSource(bitmap2))));
-                    return result.getText();
+                    int bitmapWidth = bitmap.getWidth();
+                    int bitmapHeight = bitmap.getHeight();
+                    int[] data = new int[bitmapWidth * bitmapHeight];
+                    byte[] bitmapPixels = new byte[bitmapWidth * bitmapHeight];
+                    bitmap.getPixels(data, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
+                    for (int i = 0; i < data.length; i++) {
+                        bitmapPixels[i] = (byte) data[i];
+                    }
+                    int width = bitmapWidth;
+                    int height = bitmapHeight;
+                    byte[] data2 = new byte[bitmapPixels.length];
+                    for (int y = 0; y < height; y++) {
+                        for (int x = 0; x < width; x++) {
+                            data2[x * height + height - y - 1] = bitmapPixels[x + y * width];
+                        }
+                    }
+                    int tmp = width;
+                    width = height;
+                    height = tmp;
+                    Result result = multiFormatReader.decodeWithState(new BinaryBitmap(new HybridBinarizer(new BitmapLuminanceSource(data2, width, height))));
+                    textResult = result.getText();
+                } catch (Exception ex) {
+                    Log.w("syncDecodeQRCode2", ex);
+                    try {
+                        CV4JImage cv4JImage = new CV4JImage(bitmap);
+                        QRCodeScanner qrCodeScanner = new QRCodeScanner();
+                        Rect rect = qrCodeScanner.findQRCodeBounding(cv4JImage.getProcessor(),1,6);
+                        int y = Math.max(rect.y - 20, 0);
+                        int height = Math.min(bitmap.getHeight() - rect.y + 20, bitmap.getHeight() - y);
+                        Bitmap bitmap2 = Bitmap.createBitmap(bitmap, 0, y, bitmap.getWidth(), height);
+                        Result result = create().decodeWithState(new BinaryBitmap(new HybridBinarizer(new BitmapLuminanceSource(bitmap2))));
+                        textResult = result.getText();
+                    } catch (Exception ex2) {
+                        Log.w("syncDecodeQRCode3", ex2);
+                        ex2.printStackTrace();
+                    }
                 }
-                return null;
-            } catch (Exception ex) {
-                Log.w("syncDecodeQRCode", ex);
-                ex.printStackTrace();
-                return null;
             }
         }
+        return textResult;
     }
 
     private static Bitmap zoomImg(Bitmap bm, int newWidth){
@@ -203,7 +228,7 @@ public class QRCodeDecoder {
         return Bitmap.createBitmap(bm, 0, 0, width, height, matrix, true);
     }
 
-    private static MultiFormatReader create() {
+    public static MultiFormatReader create() {
         MultiFormatReader multiFormatReader = new MultiFormatReader();
         // 解码的参数
         Hashtable<DecodeHintType, Object> hints = new Hashtable<>(2);

@@ -5,6 +5,7 @@ import android.hardware.Camera;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -25,12 +26,15 @@ public class QRCodeParsingTask {
     private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
     private static final int KEEP_ALIVE_SECONDS = 30;
 
+    private static final String TAG = "QRCodeParsingTask";
+
     private static final BlockingQueue<Runnable> sPoolWorkQueue =
             new LinkedBlockingQueue<Runnable>(50);
 
     private static final ThreadFactory sThreadFactory = new ThreadFactory() {
         private final AtomicInteger mCount = new AtomicInteger(1);
 
+        @Override
         public Thread newThread(Runnable r) {
             return new Thread(r, "QRCodeParsingTask #" + mCount.getAndIncrement());
         }
@@ -183,6 +187,7 @@ public class QRCodeParsingTask {
         public void run() {
             started = true;
             if(!canceled){
+                Log.d(TAG, "run: ");
                 ScanResult scanResult = null;
                 try {
                     scanResult = doInBackground();

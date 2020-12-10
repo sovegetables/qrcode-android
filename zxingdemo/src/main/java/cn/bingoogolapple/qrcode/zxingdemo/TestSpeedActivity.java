@@ -3,12 +3,15 @@ package cn.bingoogolapple.qrcode.zxingdemo;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import cn.bingoogolapple.qrcode.core.QRCodeView;
 import cn.bingoogolapple.qrcode.zxing.ZXingView;
 
 public class TestSpeedActivity extends AppCompatActivity {
+
+    private static final String TAG = "TestSpeedActivity";
 
     private ZXingView mZXingView;
 
@@ -53,7 +56,7 @@ public class TestSpeedActivity extends AppCompatActivity {
 
             @Override
             public void onScanQRCodeOpenCameraError() {
-
+                Log.d(TAG, "onScanQRCodeOpenCameraError: ");
             }
         });
     }

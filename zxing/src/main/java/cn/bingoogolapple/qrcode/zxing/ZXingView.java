@@ -92,7 +92,7 @@ public class ZXingView extends QRCodeView {
         Rect scanBoxAreaRect = null;
 
 
-        MultiFormatReader multiFormatReader = new MultiFormatReader();
+        /*MultiFormatReader multiFormatReader = new MultiFormatReader();
 
         // 解码的参数
         Hashtable<DecodeHintType, Object> hints = new Hashtable<DecodeHintType, Object>(2);
@@ -113,9 +113,9 @@ public class ZXingView extends QRCodeView {
             rawResult = multiFormatReader.decodeWithState(new BinaryBitmap(new HybridBinarizer(new BitmapLuminanceSource(data,width, height))));
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
 
-       /* try {
+        try {
             PlanarYUVLuminanceSource source;
             scanBoxAreaRect = mScanBoxView.getScanBoxAreaRect(height);
             if (scanBoxAreaRect != null) {
@@ -140,7 +140,7 @@ public class ZXingView extends QRCodeView {
 
         if (rawResult == null) {
             return null;
-        }*/
+        }
 
         String result = rawResult.getText();
         if (TextUtils.isEmpty(result)) {

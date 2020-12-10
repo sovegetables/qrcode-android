@@ -19,13 +19,18 @@ public class DecodeFormatManager {
 
     static {
         PRODUCT_FORMATS = new Vector<BarcodeFormat>(5);
+        // 一维条码
         PRODUCT_FORMATS.add(BarcodeFormat.UPC_A);
+        // 一维条码
         PRODUCT_FORMATS.add(BarcodeFormat.UPC_E);
+        // 一维条码
         PRODUCT_FORMATS.add(BarcodeFormat.EAN_13);
+        // 一维条码
         PRODUCT_FORMATS.add(BarcodeFormat.EAN_8);
         // PRODUCT_FORMATS.add(BarcodeFormat.RSS14);
         ONE_D_FORMATS = new Vector<BarcodeFormat>(PRODUCT_FORMATS.size() + 4);
-        ONE_D_FORMATS.addAll(PRODUCT_FORMATS);
+        //移除一维条码支持
+//        ONE_D_FORMATS.addAll(PRODUCT_FORMATS);
         ONE_D_FORMATS.add(BarcodeFormat.CODE_39);
         ONE_D_FORMATS.add(BarcodeFormat.CODE_93);
         ONE_D_FORMATS.add(BarcodeFormat.CODE_128);
