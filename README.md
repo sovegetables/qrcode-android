@@ -1,3 +1,4 @@
+[![](https://jitpack.io/v/sovegetables/qrcode-android.svg)](https://jitpack.io/#sovegetables/qrcode-android)
 
 ## Fork:[BGAQRCode-Android](https://github.com/bingoogolapple/BGAQRCode-Android)
 ## 使用文档请参考[BGAQRCode-Android](https://github.com/bingoogolapple/BGAQRCode-Android)
