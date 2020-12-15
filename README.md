@@ -1,6 +1,13 @@
 
 ## Fork:[BGAQRCode-Android](https://github.com/bingoogolapple/BGAQRCode-Android)
 ## 使用文档请参考[BGAQRCode-Android](https://github.com/bingoogolapple/BGAQRCode-Android)
+```code
+    maven { url 'https://jitpack.io' }
+
+    dependencies {
+	        implementation 'com.github.sovegetables:qrcode-android:0.2.0'
+	}
+```
 ## 优化
 - 移除一维条码支持
 - 移除zbar的支持
