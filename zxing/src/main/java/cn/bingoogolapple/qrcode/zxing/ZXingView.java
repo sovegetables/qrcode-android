@@ -91,47 +91,9 @@ public class ZXingView extends QRCodeView {
         Result rawResult = null;
         Rect scanBoxAreaRect = null;
 
-
-        /*MultiFormatReader multiFormatReader = new MultiFormatReader();
-
-        // 解码的参数
-        Hashtable<DecodeHintType, Object> hints = new Hashtable<DecodeHintType, Object>(2);
-        // 可以解析的编码类型
-        Vector<BarcodeFormat> decodeFormats = new Vector<BarcodeFormat>();
-        decodeFormats.addAll(DecodeFormatManager.ONE_D_FORMATS);
-        decodeFormats.addAll(DecodeFormatManager.QR_CODE_FORMATS);
-        decodeFormats.addAll(DecodeFormatManager.DATA_MATRIX_FORMATS);
-        hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
-        // hints.put(DecodeHintType.PURE_BARCODE, true);
-        // 设置继续的字符编码格式为UTF8
-        // hints.put(DecodeHintType.CHARACTER_SET, "UTF8");
-        // 设置解析配置参数
-        multiFormatReader.setHints(hints);
-
-        // 开始对图像资源解码
         try {
-            rawResult = multiFormatReader.decodeWithState(new BinaryBitmap(new HybridBinarizer(new BitmapLuminanceSource(data,width, height))));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
-
-        try {
-            PlanarYUVLuminanceSource source;
             scanBoxAreaRect = mScanBoxView.getScanBoxAreaRect(height);
-            if (scanBoxAreaRect != null) {
-                source = new PlanarYUVLuminanceSource(data, width, height, scanBoxAreaRect.left, scanBoxAreaRect.top, scanBoxAreaRect.width(),
-                        scanBoxAreaRect.height(), false);
-            } else {
-                source = new PlanarYUVLuminanceSource(data, width, height, 0, 0, width, height, false);
-            }
-
-            rawResult = mMultiFormatReader.decodeWithState(new BinaryBitmap(new GlobalHistogramBinarizer(source)));
-            if (rawResult == null) {
-                rawResult = mMultiFormatReader.decodeWithState(new BinaryBitmap(new HybridBinarizer(source)));
-                if (rawResult != null) {
-                    BGAQRCodeUtil.d("GlobalHistogramBinarizer 没识别到，HybridBinarizer 能识别到");
-                }
-            }
+            rawResult = mMultiFormatReader.decodeWithState(new BinaryBitmap(new HybridBinarizer(new BitmapLuminanceSource(data,width, height))));
         } catch (Exception e) {
             BGAQRCodeUtil.e("没识别到" +e.getMessage());
         } finally {
