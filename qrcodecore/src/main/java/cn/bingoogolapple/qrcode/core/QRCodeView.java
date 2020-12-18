@@ -4,18 +4,17 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PointF;
-import android.graphics.Rect;
+import android.graphics.*;
 import android.hardware.Camera;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 
 public abstract class QRCodeView extends RelativeLayout implements Camera.PreviewCallback {
     private static final int NO_CAMERA_ID = -1;
@@ -316,9 +315,23 @@ public abstract class QRCodeView extends RelativeLayout implements Camera.Previe
                 e.printStackTrace();
             }
         }
-
         QRCodeParsingTask.getInstance().pendTask(camera, data, this, BGAQRCodeUtil.isPortrait(getContext()));
     }
+
+    /*private void saveImage(final byte[] data, final Camera camera){
+        Camera.Size previewSize = camera.getParameters().getPreviewSize();//获取尺寸,格式转换的时候要用到
+        BitmapFactory.Options newOpts = new BitmapFactory.Options();
+        newOpts.inJustDecodeBounds = true;
+        YuvImage yuvimage = new YuvImage(
+                data,
+                ImageFormat.NV21,
+                previewSize.width,
+                previewSize.height,
+                null);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        yuvimage.compressToJpeg(new Rect(0, 0, previewSize.width, previewSize.height), 80, baos);
+        FileOutputStream outputStream = new FileOutputStream();
+    }*/
 
     private void handleAmbientBrightness(byte[] data, Camera camera) {
         if (mCameraPreview == null || !mCameraPreview.isPreviewing()) {
@@ -385,6 +398,7 @@ public abstract class QRCodeView extends RelativeLayout implements Camera.Previe
         mProcessDataTask = new ProcessDataTask(bitmap, this).perform();
     }
 
+    protected abstract ScanResult processDataWithCropped(byte[] data, int width, int height, boolean isRetry);
     protected abstract ScanResult processData(byte[] data, int width, int height, boolean isRetry);
 
     protected abstract ScanResult processBitmapData(Bitmap bitmap);

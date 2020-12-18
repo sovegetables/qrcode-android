@@ -77,6 +77,15 @@ public class QRCodeParsingTask {
         private static long sLastStartTime = 0;
         private final Handler uiHandler = new Handler(Looper.getMainLooper());
         private OnParsingListener onParsingListener;
+        private boolean cropped = false;
+
+        public boolean isCropped() {
+            return cropped;
+        }
+
+        public void setCropped(boolean cropped) {
+            this.cropped = cropped;
+        }
 
         public void setOnParsingListener(OnParsingListener onParsingListener) {
             this.onParsingListener = onParsingListener;
@@ -120,8 +129,11 @@ public class QRCodeParsingTask {
                     width = height;
                     height = tmp;
                 }
-
-                return qrCodeView.processData(data, width, height, false);
+                if(isCropped()){
+                    return qrCodeView.processDataWithCropped(data, width, height, false);
+                }else {
+                    return qrCodeView.processData(data, width, height, false);
+                }
             } catch (Exception e1) {
                 e1.printStackTrace();
                 try {
@@ -244,7 +256,13 @@ public class QRCodeParsingTask {
     public void pendTask(Camera camera, byte[] data, QRCodeView qrCodeView, boolean portrait) {
         InnerTask innerTask = new InnerTask(camera, data, qrCodeView, portrait);
         innerTask.setOnParsingListener(mOnParsingListener);
+        innerTask.setCropped(false);
         innerTasks.add(innerTask);
         threadPoolExecutor.submit(innerTask);
+//        InnerTask cropInnerTask = new InnerTask(camera, data, qrCodeView, portrait);
+//        cropInnerTask.setCropped(true);
+//        cropInnerTask.setOnParsingListener(mOnParsingListener);
+//        innerTasks.add(cropInnerTask);
+//        threadPoolExecutor.submit(cropInnerTask);
     }
 }

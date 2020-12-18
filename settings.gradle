@@ -1,1 +1,1 @@
-include ':qrcodecore', ':zxing', ':zxingdemo'
+include ':qrcodecore', ':zxing', ':demo', ':zbar'
