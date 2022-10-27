@@ -15,7 +15,6 @@
 - 更新zxing至3.3.2
 - 优化QRCodeView.onPreviewFrame方法逻辑，不断并行解析图片帧
 - 弃用PlanarYUVLuminanceSource, 改用bitmap.getPixels获取像素byte[]数据
-## 联系方式: 企鹅392774007
 
 ## License
 
